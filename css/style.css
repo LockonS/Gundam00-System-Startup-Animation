@@ -1,0 +1,11 @@
+@font-face {
+  font-family: 'CelestialBeingFont';
+  src: url('../fonts/Celestial-Being-Font-Patch.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+    padding: 0; 
+    margin: 0;
+    font-family: CelestialBeingFont;
+}
