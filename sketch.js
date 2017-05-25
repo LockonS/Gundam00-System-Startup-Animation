@@ -83,6 +83,12 @@ function Display() {
         rect(centerX - unit * ratio3, centerY, unit * ratio1, unit * ratio4);
         // vertical stroke box 2
         rect(centerX + unit * ratio3, centerY, unit * ratio1, unit * ratio4);
+        // slim lines
+
+        strokeWeight(1.6);
+        rect(centerX, centerY - (unit * ratio5) * alphaRatio, unit * ratio3 * 2, 0.6);
+        rect(centerX, centerY + (unit * ratio5) * alphaRatio, unit * ratio3 * 2, 0.6);
+
         // white lines
         strokeWeight(0.2);
         fill('rgba(222,222,222,' + alphaRatio + ')');
@@ -123,7 +129,7 @@ function Display() {
     this.systemStart = function (transactionRatio) {
         var heightShift1 = (widthShift - unit * ratio5) * transactionRatio;
         var heightShift2 = (unit * ratio5) * transactionRatio;
-        var widthShift1 = (maxWidth / 2) * transactionRatio;
+        var widthShift1 = (maxWidth / 2 - lineWidth / 2) * transactionRatio;
         var horizontalLineLength = unit * ratio3 * 2;
         var grey = 222 * transactionRatio;
         strokeCap(SQUARE);
@@ -149,7 +155,7 @@ function Display() {
 
         // slim line
         noFill();
-        strokeWeight(2.4);
+        strokeWeight(1.6);
         stroke('rgba(222,222,222,' + 0.1 * transactionRatio + ')');
         rect(centerX, centerY - heightShift2, horizontalLineLength, 0.6);
         rect(centerX, centerY + heightShift2, horizontalLineLength, 0.6);
@@ -179,7 +185,7 @@ function Display() {
             }
             // hide STANDBY MODE text
             if (this.standByTextStatus == undefined) {
-                var ratio = (frameCount - this.startFrame) / 50;
+                var ratio = (frameCount - this.startFrame) / 30;
                 this.standByDisplay();
                 this.standByTextDisplay(ratio);
             }
