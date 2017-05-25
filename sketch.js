@@ -58,26 +58,36 @@ function Display() {
     var ratio5 = 0.5 + ratio2;
     var maxWidth = Math.round(centerX / 2) * 2;
     var unit = Math.round(maxWidth / (5 + ratio1 * 2));
-    var lineWidth = unit / 18;
+    var lineWidth = unit / 30;
     var widthShift = lineWidth / 2;
     var textAlpha = 0.2;
     var frameCircle = 35;
     var doubleFrameCircle = frameCircle * 2;
     var startFrame = 0;
     var fullFrame = 50;
+    this.upateCanvasSize = function () {
+        // get updated window size
+        centerX = windowWidth / 2;
+        centerY = windowHeight / 2;
+        maxWidth = Math.round(centerX / 2) * 2;
+        unit = Math.round(maxWidth / (5 + ratio1 * 2));
+        lineWidth = unit / 30;
+        widthShift = lineWidth / 2;
+    }
 
     this.standByDisplay = function (ratio) {
+        this.upateCanvasSize();
         if (ratio == undefined) {
             alphaRatio = 1;
         } else {
-            alphaRatio = ratio;
+            alphaRatio = Math.pow(ratio, 3);
         }
         // center stroke box
         strokeCap(SQUARE);
         rectMode(CENTER);
-        strokeWeight(2.4);
+        strokeWeight(1.6);
         noFill();
-        stroke('rgba(255,255,255,' + 0.1 * alphaRatio + ')');
+        stroke('rgba(222,222,222,' + 0.15 * alphaRatio + ')');
         rect(centerX, centerY, maxWidth, unit);
         // vertical stroke box 1
         rect(centerX - unit * ratio3, centerY, unit * ratio1, unit * ratio4);
@@ -86,8 +96,8 @@ function Display() {
         // slim lines
 
         strokeWeight(1.6);
-        rect(centerX, centerY - (unit * ratio5) * alphaRatio, unit * ratio3 * 2, 0.6);
-        rect(centerX, centerY + (unit * ratio5) * alphaRatio, unit * ratio3 * 2, 0.6);
+        rect(centerX, centerY - (unit * ratio5) , unit * ratio3 * 2, 0.4);
+        rect(centerX, centerY + (unit * ratio5) , unit * ratio3 * 2, 0.4);
 
         // white lines
         strokeWeight(0.2);
@@ -103,6 +113,7 @@ function Display() {
         rect(centerX + maxWidth / 2 - widthShift, centerY, lineWidth, unit);
     }
     this.standByTextDisplay = function (ratio) {
+        this.upateCanvasSize();
         if (ratio == undefined) {
             this.textAlpha = 0.3 + 0.2 * sin((frameCount % doubleFrameCircle - frameCircle) * PI / frameCircle);
         } else {
@@ -127,6 +138,7 @@ function Display() {
     }
 
     this.systemStart = function (transactionRatio) {
+        this.upateCanvasSize();
         var heightShift1 = (widthShift - unit * ratio5) * transactionRatio;
         var heightShift2 = (unit * ratio5) * transactionRatio;
         var widthShift1 = (maxWidth / 2 - lineWidth / 2) * transactionRatio;
@@ -136,8 +148,8 @@ function Display() {
         rectMode(CENTER);
         // horizontal lines
         strokeWeight(0.2);
-        fill(grey, grey, grey);
-        stroke(grey, grey, grey);
+        fill('rgba(222,222,222,' + transactionRatio + ')');
+        stroke('rgba(222,222,222,' + transactionRatio + ')');
         rect(centerX - unit * ratio3, centerY + heightShift1, unit * ratio1, lineWidth);
         rect(centerX + unit * ratio3, centerY + heightShift1, unit * ratio1, lineWidth);
         rect(centerX - unit * ratio3, centerY - heightShift1, unit * ratio1, lineWidth);
@@ -146,30 +158,25 @@ function Display() {
         // vertical lines
         rect(centerX - widthShift1, centerY, lineWidth, unit);
         rect(centerX + widthShift1, centerY, lineWidth, unit);
-        rect(centerX - widthShift1 - lineWidth * 2, centerY, lineWidth * 3, lineWidth);
-        rect(centerX + widthShift1 + lineWidth * 2, centerY, lineWidth * 3, lineWidth);
-        rect(centerX - widthShift1 + lineWidth * 1, centerY - unit / 2 + lineWidth / 2, lineWidth * 3, lineWidth);
-        rect(centerX - widthShift1 + lineWidth * 1, centerY + unit / 2 - lineWidth / 2, lineWidth * 3, lineWidth);
-        rect(centerX + widthShift1 - lineWidth * 1, centerY - unit / 2 + lineWidth / 2, lineWidth * 3, lineWidth);
-        rect(centerX + widthShift1 - lineWidth * 1, centerY + unit / 2 - lineWidth / 2, lineWidth * 3, lineWidth);
+        rect(centerX - widthShift1 - lineWidth * 2, centerY, lineWidth * 3, lineWidth*1.6);
+        rect(centerX + widthShift1 + lineWidth * 2, centerY, lineWidth * 3, lineWidth*1.6);
+        rect(centerX - widthShift1 + lineWidth * 1.5, centerY - unit / 2 + lineWidth * 0.8, lineWidth * 2, lineWidth*1.6);
+        rect(centerX - widthShift1 + lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, lineWidth * 2, lineWidth*1.6);
+        rect(centerX + widthShift1 - lineWidth * 1.5, centerY - unit / 2 + lineWidth * 0.8, lineWidth * 2, lineWidth*1.6);
+        rect(centerX + widthShift1 - lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, lineWidth * 2, lineWidth*1.6);
 
         // slim line
         noFill();
         strokeWeight(1.6);
-        stroke('rgba(222,222,222,' + 0.1 * transactionRatio + ')');
-        rect(centerX, centerY - heightShift2, horizontalLineLength, 0.6);
-        rect(centerX, centerY + heightShift2, horizontalLineLength, 0.6);
+        stroke('rgba(222,222,222,' + 0.15 * transactionRatio + ')');
+        rect(centerX, centerY - heightShift2, horizontalLineLength, 0.4);
+        rect(centerX, centerY + heightShift2, horizontalLineLength, 0.4);
 
         // finish transaction
         if (transactionRatio == 1) {
             starting = false;
             systemStart = true;
         }
-    }
-    this.systemStartTransaction = function () {
-        var transactionRatio = (frameCount % fullFrame) / fullFrame;
-        this.systemStart(transactionRatio);
-        this.standByDisplay(1 - transactionRatio);
     }
 
     // shall be moved to draw() function
@@ -191,12 +198,13 @@ function Display() {
             }
             // hide patterns on standby mode display
             if (this.standByTextStatus == false) {
+                background(0);
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
                 var transactionRatio = (frameCount - this.startFrame) / 30;
-                this.systemStart(transactionRatio);
                 this.standByDisplay(1 - transactionRatio);
+                this.systemStart(transactionRatio);
             }
         } else {
             frameRate(30);
