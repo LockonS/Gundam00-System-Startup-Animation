@@ -138,7 +138,7 @@ function Display() {
         text("STANDBY MODE", centerX, centerY - unit / 8);
     }
 
-    this.systemStart = function (transactionRatio, fullAnimationFrame) {
+    this.systemStart = function (transactionRatio) {
         this.upateCanvasSize();
         var heightShift1 = (halfLineWidth - unit * ratio5) * transactionRatio;
         var heightShift2 = (unit * ratio5) * transactionRatio;
@@ -175,6 +175,19 @@ function Display() {
         rect(centerX, centerY - heightShift2, horizontalLineLength, 0.4);
         rect(centerX, centerY + heightShift2, horizontalLineLength, 0.4);
 
+        // finish transaction
+        if (transactionRatio == 1) {
+            starting = false;
+            systemStart = true;
+        }
+    }
+
+    this.controlText = function (transactionRatio) {
+        this.upateCanvasSize();
+        var maskLength = unit * (1.5 + ratio1) * 2;
+        var textSizeSmall = maxWidth / (40 + ratio1 * 16);
+        var textHeightShift = unit * ratio5 + textSizeSmall;
+
         // text display
         // CRM ERS NORM OURD CNTL
         noStroke();
@@ -187,17 +200,9 @@ function Display() {
         text("NORM", centerX, centerY + textHeightShift);
         text("OURD", centerX + unit * ratio3 / 2, centerY + textHeightShift);
         text("CNTL", centerX + unit * ratio3, centerY + textHeightShift);
-        if (fullAnimationFrame != undefined) {
-            fill('rgba(0, 0, 0, ' + (1-transactionRatio) + ')');
-            rect(centerX, centerY + textHeightShift, unit * (1.5 + ratio1) * 2, textSizeSmall);
-        }
 
-
-        // finish transaction
-        if (transactionRatio == 1) {
-            starting = false;
-            systemStart = true;
-        }
+        fill('rgba(0, 0, 0, ' + 1 + ')');
+        rect(centerX + maskLength * transactionRatio / 2, centerY + textHeightShift, maskLength * (1 - transactionRatio), textSizeSmall);
     }
 
     // shall be moved to draw() function
@@ -220,16 +225,26 @@ function Display() {
             // hide patterns on standby mode display
             if (this.standByTextStatus == false) {
                 background(0);
-                var transactionFrame = 30;
+                var transactionFrame = 70;
+                var delayFrame = 30;
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
-                var transactionRatio = (frameCount - this.startFrame) / transactionFrame;
-                this.standByDisplay(1 - transactionRatio);
-                this.systemStart(transactionRatio, transactionFrame);
+                var textDisplayRatio = (frameCount - this.startFrame) / transactionFrame;
+                this.controlText(textDisplayRatio);
+                if ((frameCount - this.startFrame) <= delayFrame) {
+                    this.standByDisplay(1);
+                }
+                if ((frameCount - this.startFrame) > delayFrame) {
+                    var transactionRatio = (frameCount - this.startFrame - delayFrame) / (transactionFrame - delayFrame);
+                    this.standByDisplay(1 - transactionRatio);
+                    this.systemStart(transactionRatio, transactionFrame);
+                }
+
             }
         } else {
             frameRate(30);
+            this.controlText(1);
             this.systemStart(1);
             this.standByDisplay(0);
         }
