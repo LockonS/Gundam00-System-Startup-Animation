@@ -96,8 +96,8 @@ function Display() {
         // slim lines
 
         strokeWeight(1.6);
-        rect(centerX, centerY - (unit * ratio5), unit * ratio3 * 2, 0.4);
-        rect(centerX, centerY + (unit * ratio5), unit * ratio3 * 2, 0.4);
+        rect(centerX, centerY - (unit * ratio5), unit * ratio3 * 2, 0);
+        rect(centerX, centerY + (unit * ratio5), unit * ratio3 * 2, 0);
 
         // white lines
         strokeWeight(0.2);
@@ -172,8 +172,8 @@ function Display() {
         noFill();
         strokeWeight(1.6);
         stroke('rgba(222,222,222,' + 0.15 * transactionRatio + ')');
-        rect(centerX, centerY - heightShift2, horizontalLineLength, 0.4);
-        rect(centerX, centerY + heightShift2, horizontalLineLength, 0.4);
+        rect(centerX, centerY - heightShift2, horizontalLineLength, 0);
+        rect(centerX, centerY + heightShift2, horizontalLineLength, 0);
 
         // finish transaction
         if (transactionRatio == 1) {
@@ -264,15 +264,15 @@ function Display() {
             }
             // hide STANDBY MODE text
             if (this.standByTextStatus == undefined) {
-                var ratio = (frameCount - this.startFrame) / 30;
+                var ratio = (frameCount - this.startFrame) / 20;
                 this.standByDisplay();
                 this.standByTextDisplay(ratio);
             }
             // hide patterns on standby mode display
             if (this.standByTextStatus == false) {
                 background(0);
-                var transactionFrame = 80;
-                var fadeDelayFrame = 40;
+                var transactionFrame = 50;
+                var fadeDelayFrame = 20;
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
