@@ -14,7 +14,6 @@ function setup() {
 }
 
 function draw() {
-    background(0);
     screen.display();
 }
 
@@ -66,8 +65,9 @@ function Display() {
         this.startingFlag = false;
         this.systemStartFlag = false;
     }
-    
+
     this.setStartFlag = function () {
+        // start animation by set start flag
         this.standByFlag = !this.standByFlag;
         this.startingFlag = !this.startingFlag;
     }
@@ -101,11 +101,9 @@ function Display() {
         // vertical stroke box 2
         rect(centerX + unit * ratio3, centerY, unit * ratio1, unit * ratio4);
         // slim lines
-
         strokeWeight(1.6);
         rect(centerX, centerY - (unit * ratio5), unit * ratio3 * 2, 0);
         rect(centerX, centerY + (unit * ratio5), unit * ratio3 * 2, 0);
-
         // white lines
         strokeWeight(0.2);
         fill('rgba(222,222,222,' + alphaRatio + ')');
@@ -164,7 +162,6 @@ function Display() {
         rect(centerX + unit * ratio3, centerY + heightShift1, unit * ratio1, lineWidth);
         rect(centerX - unit * ratio3, centerY - heightShift1, unit * ratio1, lineWidth);
         rect(centerX + unit * ratio3, centerY - heightShift1, unit * ratio1, lineWidth);
-
         // vertical lines
         rect(centerX - widthShift1, centerY, lineWidth, unit);
         rect(centerX + widthShift1, centerY, lineWidth, unit);
@@ -174,14 +171,12 @@ function Display() {
         rect(centerX - widthShift1 + lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, lineWidth * 2, lineWidth * 1.6);
         rect(centerX + widthShift1 - lineWidth * 1.5, centerY - unit / 2 + lineWidth * 0.8, lineWidth * 2, lineWidth * 1.6);
         rect(centerX + widthShift1 - lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, lineWidth * 2, lineWidth * 1.6);
-
         // slim line
         noFill();
         strokeWeight(1.6);
         stroke('rgba(222,222,222,' + 0.15 * transactionRatio + ')');
         rect(centerX, centerY - heightShift2, horizontalLineLength, 0);
         rect(centerX, centerY + heightShift2, horizontalLineLength, 0);
-
         // finish transaction
         if (transactionRatio == 1) {
             this.startingFlag = false;
@@ -196,7 +191,6 @@ function Display() {
         var textHeightShift = unit * ratio5 + textSizeSmall;
         var textHeight = centerY + textHeightShift;
         var currentFrame = frameCount - this.startFrame;
-
         // control text display
         noStroke();
         fill('rgba(222, 222, 222, 1)');
@@ -208,7 +202,7 @@ function Display() {
         text("NORM", centerX, textHeight);
         text("OURD", centerX + unit * ratio3 / 2, textHeight);
         text("CNTL", centerX + unit * ratio3, textHeight);
-
+        // text cover
         rectMode(CENTER);
         fill('rgba(0, 0, 0, 1)');
         var step = Math.round(transactionFrame / 5);
@@ -245,18 +239,15 @@ function Display() {
         } else if (currentFrame < step * 4) {
             this.textCover(centerX + unit * ratio3, textHeight, maskLength, textSizeSmall, 0);
         }
-
-
-        // full cover
-        // rect(centerX + maskLength * transactionRatio / 2, textHeight, maskLength * (1 - transactionRatio), textSizeSmall);
     }
 
     this.textCover = function (x, y, maskLength, height, coverRatio) {
         rect(x + maskLength * coverRatio / 2, y, maskLength * (1 - coverRatio), height);
     }
 
-    // shall be moved to draw() function
+    // add this function into draw() funciton
     this.display = function () {
+        background(0);
         if (this.standByFlag) {
             frameRate(30);
             this.standByDisplay();
@@ -291,7 +282,6 @@ function Display() {
                     this.standByDisplay(1 - transactionRatio);
                     this.systemStartAnimation(transactionRatio, transactionFrame);
                 }
-
             }
         } else {
             frameRate(30);
