@@ -182,11 +182,13 @@ function Display() {
         }
     }
 
-    this.controlText = function (transactionRatio) {
+    this.controlText = function (transactionRatio, transactionFrame) {
         this.upateCanvasSize();
-        var maskLength = unit * (1.5 + ratio1) * 2;
+        var maskLength = unit * 0.32;
         var textSizeSmall = maxWidth / (40 + ratio1 * 16);
         var textHeightShift = unit * ratio5 + textSizeSmall;
+        var textHeight = centerY + textHeightShift;
+        var currentFrame = frameCount - this.startFrame;
 
         // text display
         // CRM ERS NORM OURD CNTL
@@ -195,14 +197,58 @@ function Display() {
         textSize(textSizeSmall);
         textAlign(CENTER);
         textFont("CelestialBeingFont");
-        text("CRM", centerX - unit * ratio3, centerY + textHeightShift);
-        text("ERS", centerX - unit * ratio3 / 2, centerY + textHeightShift);
-        text("NORM", centerX, centerY + textHeightShift);
-        text("OURD", centerX + unit * ratio3 / 2, centerY + textHeightShift);
-        text("CNTL", centerX + unit * ratio3, centerY + textHeightShift);
+        text("CRM", centerX - unit * ratio3, textHeight);
+        text("ERS", centerX - unit * ratio3 / 2, textHeight);
+        text("NORM", centerX, textHeight);
+        text("OURD", centerX + unit * ratio3 / 2, textHeight);
+        text("CNTL", centerX + unit * ratio3, textHeight);
 
-        fill('rgba(0, 0, 0, ' + 1 + ')');
-        rect(centerX + maskLength * transactionRatio / 2, centerY + textHeightShift, maskLength * (1 - transactionRatio), textSizeSmall);
+
+        rectMode(CENTER);
+        noStroke();
+        fill('rgba(0, 0, 0, 1)');
+        var step = Math.round(transactionFrame/5);
+        var stepFrame = step + 2;
+        if (currentFrame >= 0 && currentFrame < (step + 2)) {
+            var coverRatio = currentFrame / stepFrame;
+            this.textCover(centerX - unit * ratio3, textHeight, maskLength, textSizeSmall, coverRatio);
+        }
+
+        if (currentFrame >= step && currentFrame < (step * 2 + 2)) {
+            var coverRatio = (currentFrame - step) / stepFrame;
+            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, coverRatio);
+        } else if (currentFrame < step) {
+            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, 0);
+        }
+
+        if (currentFrame >= step * 2 && currentFrame < (step * 3 + 2)) {
+            var coverRatio = (currentFrame - step * 2) / stepFrame;
+            this.textCover(centerX, textHeight, maskLength, textSizeSmall, coverRatio);
+        } else if (currentFrame < step * 2) {
+            this.textCover(centerX, textHeight, maskLength, textSizeSmall, 0);
+        }
+
+        if (currentFrame >= step * 3 && currentFrame < (step * 4 + 2)) {
+            var coverRatio = (currentFrame - step * 3) / stepFrame;
+            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, coverRatio);
+        } else if (currentFrame < step * 3) {
+            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, 0);
+        }
+
+        if (currentFrame >= step * 4 && currentFrame <= transactionFrame) {
+            var coverRatio = (currentFrame - step * 4) / stepFrame;
+            this.textCover(centerX + unit * ratio3, textHeight, maskLength, textSizeSmall, coverRatio);
+        } else if (currentFrame < step * 4) {
+            this.textCover(centerX + unit * ratio3, textHeight, maskLength, textSizeSmall, 0);
+        }
+
+
+        // full cover
+        // rect(centerX + maskLength * transactionRatio / 2, textHeight, maskLength * (1 - transactionRatio), textSizeSmall);
+    }
+
+    this.textCover = function (x, y, maskLength, height, coverRatio) {
+        rect(x + maskLength * coverRatio / 2, y, maskLength * (1 - coverRatio), height);
     }
 
     // shall be moved to draw() function
@@ -225,18 +271,18 @@ function Display() {
             // hide patterns on standby mode display
             if (this.standByTextStatus == false) {
                 background(0);
-                var transactionFrame = 70;
-                var delayFrame = 30;
+                var transactionFrame = 80;
+                var fadeDelayFrame = 40;
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
                 var textDisplayRatio = (frameCount - this.startFrame) / transactionFrame;
-                this.controlText(textDisplayRatio);
-                if ((frameCount - this.startFrame) <= delayFrame) {
+                this.controlText(textDisplayRatio, transactionFrame);
+                if ((frameCount - this.startFrame) <= fadeDelayFrame) {
                     this.standByDisplay(1);
                 }
-                if ((frameCount - this.startFrame) > delayFrame) {
-                    var transactionRatio = (frameCount - this.startFrame - delayFrame) / (transactionFrame - delayFrame);
+                if ((frameCount - this.startFrame) > fadeDelayFrame) {
+                    var transactionRatio = (frameCount - this.startFrame - fadeDelayFrame) / (transactionFrame - fadeDelayFrame);
                     this.standByDisplay(1 - transactionRatio);
                     this.systemStart(transactionRatio, transactionFrame);
                 }
