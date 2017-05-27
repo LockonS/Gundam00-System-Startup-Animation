@@ -1,7 +1,4 @@
 var celestialFont, screen;
-var standByStatus = true;
-var starting = false;
-var systemStart = false;
 
 function preload() {
     celestialFont = loadFont("./fonts/Celestial-Being-Font-Patch.ttf");
@@ -11,6 +8,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     console.log("windowWidth:" + windowWidth + ", windowHeight:" + windowHeight);
     screen = new Display();
+    screen.init();
     background(0);
     frameRate(30);
 }
@@ -18,7 +16,6 @@ function setup() {
 function draw() {
     background(0);
     screen.display();
-    //    screen.systemStart(1);
 }
 
 function windowResized() {
@@ -28,9 +25,7 @@ function windowResized() {
 
 function mousePressed() {
     // alert("mousePressed");
-    standByStatus = !standByStatus;
-    starting = !starting;
-    systemStart = !systemStart;
+    screen.setStartFlag();
     return false;
 }
 
@@ -65,8 +60,20 @@ function Display() {
     var doubleFrameCircle = frameCircle * 2;
     var startFrame = 0;
     var fullFrame = 50;
+
+    this.init = function () {
+        this.standByFlag = true;
+        this.startingFlag = false;
+        this.systemStartFlag = false;
+    }
+    
+    this.setStartFlag = function () {
+        this.standByFlag = !this.standByFlag;
+        this.startingFlag = !this.startingFlag;
+    }
+
     this.upateCanvasSize = function () {
-        // get updated window size
+        // get updated window size after window resize
         centerX = windowWidth / 2;
         centerY = windowHeight / 2;
         maxWidth = Math.round(centerX / 2) * 2;
@@ -138,7 +145,7 @@ function Display() {
         text("STANDBY MODE", centerX, centerY - unit / 8);
     }
 
-    this.systemStart = function (transactionRatio) {
+    this.systemStartAnimation = function (transactionRatio) {
         this.upateCanvasSize();
         var heightShift1 = (halfLineWidth - unit * ratio5) * transactionRatio;
         var heightShift2 = (unit * ratio5) * transactionRatio;
@@ -177,12 +184,12 @@ function Display() {
 
         // finish transaction
         if (transactionRatio == 1) {
-            starting = false;
-            systemStart = true;
+            this.startingFlag = false;
+            this.systemStartFlag = true;
         }
     }
 
-    this.controlText = function (transactionRatio, transactionFrame) {
+    this.controlTextDisplay = function (transactionRatio, transactionFrame) {
         this.upateCanvasSize();
         var maskLength = unit * 0.32;
         var textSizeSmall = maxWidth / (40 + ratio1 * 16);
@@ -190,8 +197,7 @@ function Display() {
         var textHeight = centerY + textHeightShift;
         var currentFrame = frameCount - this.startFrame;
 
-        // text display
-        // CRM ERS NORM OURD CNTL
+        // control text display
         noStroke();
         fill('rgba(222, 222, 222, 1)');
         textSize(textSizeSmall);
@@ -203,11 +209,9 @@ function Display() {
         text("OURD", centerX + unit * ratio3 / 2, textHeight);
         text("CNTL", centerX + unit * ratio3, textHeight);
 
-
         rectMode(CENTER);
-        noStroke();
         fill('rgba(0, 0, 0, 1)');
-        var step = Math.round(transactionFrame/5);
+        var step = Math.round(transactionFrame / 5);
         var stepFrame = step + 2;
         if (currentFrame >= 0 && currentFrame < (step + 2)) {
             var coverRatio = currentFrame / stepFrame;
@@ -253,10 +257,11 @@ function Display() {
 
     // shall be moved to draw() function
     this.display = function () {
-        if (standByStatus) {
+        if (this.standByFlag) {
+            frameRate(30);
             this.standByDisplay();
             this.standByTextDisplay();
-        } else if (starting) {
+        } else if (this.startingFlag) {
             frameRate(60);
             // set transaction start frame
             if (this.startFrame == undefined) {
@@ -277,21 +282,21 @@ function Display() {
                     this.startFrame = frameCount;
                 }
                 var textDisplayRatio = (frameCount - this.startFrame) / transactionFrame;
-                this.controlText(textDisplayRatio, transactionFrame);
+                this.controlTextDisplay(textDisplayRatio, transactionFrame);
                 if ((frameCount - this.startFrame) <= fadeDelayFrame) {
                     this.standByDisplay(1);
                 }
                 if ((frameCount - this.startFrame) > fadeDelayFrame) {
                     var transactionRatio = (frameCount - this.startFrame - fadeDelayFrame) / (transactionFrame - fadeDelayFrame);
                     this.standByDisplay(1 - transactionRatio);
-                    this.systemStart(transactionRatio, transactionFrame);
+                    this.systemStartAnimation(transactionRatio, transactionFrame);
                 }
 
             }
         } else {
             frameRate(30);
-            this.controlText(1);
-            this.systemStart(1);
+            this.controlTextDisplay(1);
+            this.systemStartAnimation(1);
             this.standByDisplay(0);
         }
     }
