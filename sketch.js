@@ -254,9 +254,9 @@ function Display() {
 
     }
 
-    this.iiosDisplay = function (phaseFrameCount, fullFrameCount) {
+    this.osTitleDisplay = function (phaseFrameCount, fullFrameCount, order) {
         this.updateCanvasSize();
-        var step = fullFrameCount / 4;
+        var step = fullFrameCount / 5;
         var ratio;
         var brightRatio;
         var heightRatio;
@@ -277,24 +277,37 @@ function Display() {
         var baseTextFontSize = maxWidth / (20 + ratio1 * 8);
         var textFontSize1 = baseTextFontSize * 2.5;
         var textFontSize2 = baseTextFontSize * 1.7;
+        var iiosTextCoverRatio = 0;
+        var iiosString = "";
+        var startUpTransRatio = 0;
 
         if (phaseFrameCount <= step) {
             brightRatio = phaseFrameCount / step;
-            heightRatio = 0;
-            titleTransRatio = 0;
         } else if (phaseFrameCount > step && phaseFrameCount <= step * 2) {
             brightRatio = 1;
             heightRatio = phaseFrameCount / step - 1;
-            titleTransRatio = 0;
         } else if (phaseFrameCount > step * 2 && phaseFrameCount <= step * 3) {
             brightRatio = 1;
             heightRatio = 1;
             titleTransRatio = phaseFrameCount / step - 2;
+            iiosTextCoverRatio = (phaseFrameCount / step - 2) / 2;
         } else if (phaseFrameCount > step * 3 && phaseFrameCount <= step * 4) {
             brightRatio = 1;
             heightRatio = 1;
-            ratio = phaseFrameCount / step - 3;
             titleTransRatio = 1;
+            iiosTextCoverRatio = (phaseFrameCount / step - 2) / 2;
+        } else if (phaseFrameCount > step * 4 && phaseFrameCount <= step * 5) {
+            brightRatio = 1;
+            heightRatio = 1;
+            titleTransRatio = 1;
+            iiosTextCoverRatio = 1;
+            startUpTransRatio = phaseFrameCount / step - 4;
+        } else {
+            brightRatio = 1;
+            heightRatio = 1;
+            titleTransRatio = 1;
+            iiosTextCoverRatio = 1;
+            startUpTransRatio = 1;
         }
 
         noStroke();
@@ -325,6 +338,26 @@ function Display() {
             textSize(textFontSize2);
             text("O", centerX + titleWidthShift1, baseY + titleHeightShift1);
             text("S", centerX + titleWidthShift1 + textFontSize2 / 5, baseY + titleHeightShift1 + textFontSize2 / 4);
+        }
+
+        if (iiosTextCoverRatio > 0) {
+            fill('rgba(222,222,222,1)');
+            textAlign(CENTER);
+            textSize(baseTextFontSize);
+            textFont("CelestialBeingFont");
+            iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
+            text(iiosString, centerX, centerY - unit / 5);
+            rectMode(CENTER);
+            fill('rgba(0, 0, 0, 1)');
+            this.textCover(centerX, centerY - unit / 5, textWidth(iiosString), baseTextFontSize, iiosTextCoverRatio);
+            fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
+            text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+
+        }
+
+        // while hide title display part in an reverse frame order
+        if (order != undefined && order == 'reverse') {
+
         }
     }
 
@@ -376,7 +409,7 @@ function Display() {
                     this.windowFrameDisplay();
                 }
                 // after transaction animation phase 1 finished
-                var transactionPhase2Frame = 80;
+                var transactionPhase2Frame = 100;
                 if (this.transactionPhase1Flag) {
                     // display iios info
                     var phase2FrameCount = frameCount - this.phase1FinishFrame;
@@ -384,7 +417,7 @@ function Display() {
                     if (phase2FrameCount > transactionPhase2Frame) {
                         phase2FrameCount = transactionPhase2Frame;
                     }
-                    this.iiosDisplay(phase2FrameCount, transactionPhase2Frame);
+                    this.osTitleDisplay(phase2FrameCount, transactionPhase2Frame);
                 }
             }
         } else {
