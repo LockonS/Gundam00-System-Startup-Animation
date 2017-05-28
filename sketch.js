@@ -25,7 +25,10 @@ function windowResized() {
 
 function mousePressed() {
     // alert("mousePressed");
-    screen.setStartFlag();
+    if (screen.standByFlag == true) {
+        screen.setStartFlag();
+    }
+
     return false;
 }
 
@@ -62,7 +65,14 @@ function Display() {
     var frameCircle = 35;
     var doubleFrameCircle = frameCircle * 2;
     var startFrame = 0;
-    var fullFrame = 50;
+
+    // phase frame counts
+    var standByBlinkFrame = 20;
+    var transactionPhase1Frame = 50;
+    var phase1DelayFrame = 20;
+    var frameDisplayDelay = 40;
+    var windowDisplayFrame = 45;
+    var transactionPhase2Frame = 80;
 
     this.init = function () {
         this.standByFlag = true;
@@ -87,12 +97,15 @@ function Display() {
         halfLineWidth = lineWidth / 2;
     }
 
-    this.standByDisplay = function (ratio) {
-        this.updateCanvasSize();
-        if (ratio == undefined) {
+    this.standByDisplay = function (transactionRatio) {
+        var heightShift1 = unit * ratio5 - halfLineWidth;
+        var width1 = unit * ratio1;
+        var widthShift1 = unit * ratio3;
+        var widthShift2 = maxWidth / 2 - halfLineWidth;
+        if (transactionRatio == undefined) {
             alphaRatio = 1;
         } else {
-            alphaRatio = Math.pow(ratio, 3);
+            alphaRatio = Math.pow(transactionRatio, 3);
         }
         // center stroke box
         strokeCap(SQUARE);
@@ -114,24 +127,24 @@ function Display() {
         fill('rgba(222,222,222,' + alphaRatio + ')');
         stroke('rgba(222,222,222,' + alphaRatio + ')');
         // horizontal lines
-        rect(centerX - unit * ratio3, centerY - unit * ratio5 + halfLineWidth, unit * ratio1, lineWidth);
-        rect(centerX + unit * ratio3, centerY - unit * ratio5 + halfLineWidth, unit * ratio1, lineWidth);
-        rect(centerX - unit * ratio3, centerY + unit * ratio5 - halfLineWidth, unit * ratio1, lineWidth);
-        rect(centerX + unit * ratio3, centerY + unit * ratio5 - halfLineWidth, unit * ratio1, lineWidth);
+        rect(centerX - widthShift1, centerY - heightShift1, width1, lineWidth);
+        rect(centerX + widthShift1, centerY - heightShift1, width1, lineWidth);
+        rect(centerX - widthShift1, centerY + heightShift1, width1, lineWidth);
+        rect(centerX + widthShift1, centerY + heightShift1, width1, lineWidth);
         // vertical lines
-        rect(centerX - maxWidth / 2 + halfLineWidth, centerY, lineWidth, unit);
-        rect(centerX + maxWidth / 2 - halfLineWidth, centerY, lineWidth, unit);
+        rect(centerX - widthShift2, centerY, lineWidth, unit);
+        rect(centerX + widthShift2, centerY, lineWidth, unit);
     }
-    this.standByTextDisplay = function (ratio) {
-        this.updateCanvasSize();
+    this.standByTextDisplay = function (transactionRatio) {
+        // blinking STANDBY MODE text
         var textFontSize = maxWidth / (20 + ratio1 * 8);
-        if (ratio == undefined) {
+        if (transactionRatio == undefined) {
             this.textAlpha = 0.3 + 0.2 * sin((frameCount % doubleFrameCircle - frameCircle) * PI / frameCircle);
         } else {
             if (this.fadeStartAlpha == undefined) {
                 this.fadeStartAlpha = this.textAlpha;
             }
-            this.textAlpha = this.fadeStartAlpha * (1 - sin(ratio * PI / 2));
+            this.textAlpha = this.fadeStartAlpha * (1 - sin(transactionRatio * PI / 2));
             if (this.textAlpha == 0) {
                 // reset startFrame and fadeStartAlpha
                 this.fadeStartAlpha = undefined;
@@ -149,16 +162,20 @@ function Display() {
     }
 
     this.systemStartAnimation = function (transactionRatio) {
-        this.updateCanvasSize();
         var heightShift1 = (halfLineWidth - unit * ratio5) * transactionRatio;
         var heightShift2 = (unit * ratio5) * transactionRatio;
+        var heightShift3 = unit / 2 - lineWidth * 0.8;
         var widthShift1 = (maxWidth / 2 - lineWidth / 2) * transactionRatio;
+        var widthShift2 = unit * ratio3;
+        var widthShift3 = widthShift1 + lineWidth * 2;
+        var widthShift4 = widthShift1 - lineWidth * 1.5;
         var horizontalLineLength = unit * ratio3 * 2;
         var grey = 222 * transactionRatio;
         var textSizeSmall = maxWidth / (40 + ratio1 * 16);
         var textHeightShift = unit * ratio5 + textSizeSmall;
         var width1 = lineWidth * 5;
         var width2 = lineWidth * 4;
+        var width3 = unit * ratio1;
         var height1 = lineWidth * 1.6;
         strokeCap(SQUARE);
         rectMode(CENTER);
@@ -166,19 +183,19 @@ function Display() {
         strokeWeight(0.2);
         fill('rgba(222,222,222,' + transactionRatio + ')');
         stroke('rgba(222,222,222,' + transactionRatio + ')');
-        rect(centerX - unit * ratio3, centerY + heightShift1, unit * ratio1, lineWidth);
-        rect(centerX + unit * ratio3, centerY + heightShift1, unit * ratio1, lineWidth);
-        rect(centerX - unit * ratio3, centerY - heightShift1, unit * ratio1, lineWidth);
-        rect(centerX + unit * ratio3, centerY - heightShift1, unit * ratio1, lineWidth);
+        rect(centerX - widthShift2, centerY + heightShift1, width3, lineWidth);
+        rect(centerX + widthShift2, centerY + heightShift1, width3, lineWidth);
+        rect(centerX - widthShift2, centerY - heightShift1, width3, lineWidth);
+        rect(centerX + widthShift2, centerY - heightShift1, width3, lineWidth);
         // vertical lines
         rect(centerX - widthShift1, centerY, lineWidth, unit);
         rect(centerX + widthShift1, centerY, lineWidth, unit);
-        rect(centerX - widthShift1 - lineWidth * 2, centerY, width1, height1);
-        rect(centerX + widthShift1 + lineWidth * 2, centerY, width1, height1);
-        rect(centerX - widthShift1 + lineWidth * 1.5, centerY - unit / 2 + lineWidth * 0.8, width2, height1);
-        rect(centerX - widthShift1 + lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, width2, height1);
-        rect(centerX + widthShift1 - lineWidth * 1.5, centerY - unit / 2 + lineWidth * 0.8, width2, height1);
-        rect(centerX + widthShift1 - lineWidth * 1.5, centerY + unit / 2 - lineWidth * 0.8, width2, height1);
+        rect(centerX - widthShift3, centerY, width1, height1);
+        rect(centerX + widthShift3, centerY, width1, height1);
+        rect(centerX - widthShift4, centerY - heightShift3, width2, height1);
+        rect(centerX - widthShift4, centerY + heightShift3, width2, height1);
+        rect(centerX + widthShift4, centerY - heightShift3, width2, height1);
+        rect(centerX + widthShift4, centerY + heightShift3, width2, height1);
         // slim line
         noFill();
         strokeWeight(1.6);
@@ -195,13 +212,13 @@ function Display() {
         }
     }
 
-    this.controlTextDisplay = function (transactionRatio, transactionPhase1Frame) {
-        this.updateCanvasSize();
-        var maskLength = unit * 0.32;
+    this.controlTextDisplay = function (fullFrameCount) {
+        var maskLength = 0;
         var textSizeSmall = maxWidth / (40 + ratio1 * 16);
         var textHeightShift = unit * ratio5 + textSizeSmall;
         var textHeight = centerY + textHeightShift;
         var currentFrame = frameCount - this.startFrame;
+        var coverHeight = 0;
         // control text display
         noStroke();
         fill('rgba(222, 222, 222, 1)');
@@ -213,46 +230,47 @@ function Display() {
         text("NORM", centerX, textHeight);
         text("OURD", centerX + unit * ratio3 / 2, textHeight);
         text("CNTL", centerX + unit * ratio3, textHeight);
+        // get width of a 5 character string 
+        maskLength = textWidth('XXXXX');
+        coverHeight = maskLength / 3;
         // text cover
-        var step = Math.round(transactionPhase1Frame / 5);
+        var step = Math.round(fullFrameCount / 5);
         var stepFrame = step + 2;
         if (currentFrame >= 0 && currentFrame < (step + 2)) {
             var coverRatio = currentFrame / stepFrame;
-            this.textCover(centerX - unit * ratio3, textHeight, maskLength, textSizeSmall, coverRatio);
+            this.textCover(centerX - unit * ratio3, textHeight, maskLength, coverHeight, coverRatio);
         }
 
         if (currentFrame >= step && currentFrame < (step * 2 + 2)) {
             var coverRatio = (currentFrame - step) / stepFrame;
-            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, coverRatio);
+            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, coverHeight, coverRatio);
         } else if (currentFrame < step) {
-            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, 0);
+            this.textCover(centerX - unit * ratio3 / 2, textHeight, maskLength, coverHeight, 0);
         }
 
         if (currentFrame >= step * 2 && currentFrame < (step * 3 + 2)) {
             var coverRatio = (currentFrame - step * 2) / stepFrame;
-            this.textCover(centerX, textHeight, maskLength, textSizeSmall, coverRatio);
+            this.textCover(centerX, textHeight, maskLength, coverHeight, coverRatio);
         } else if (currentFrame < step * 2) {
-            this.textCover(centerX, textHeight, maskLength, textSizeSmall, 0);
+            this.textCover(centerX, textHeight, maskLength, coverHeight, 0);
         }
 
         if (currentFrame >= step * 3 && currentFrame < (step * 4 + 2)) {
             var coverRatio = (currentFrame - step * 3) / stepFrame;
-            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, coverRatio);
+            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, coverHeight, coverRatio);
         } else if (currentFrame < step * 3) {
-            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, textSizeSmall, 0);
+            this.textCover(centerX + unit * ratio3 / 2, textHeight, maskLength, coverHeight, 0);
         }
 
-        if (currentFrame >= step * 4 && currentFrame <= transactionPhase1Frame) {
+        if (currentFrame >= step * 4 && currentFrame <= fullFrameCount) {
             var coverRatio = (currentFrame - step * 4) / stepFrame;
-            this.textCover(centerX + unit * ratio3, textHeight, maskLength, textSizeSmall, coverRatio);
+            this.textCover(centerX + unit * ratio3, textHeight, maskLength, coverHeight, coverRatio);
         } else if (currentFrame < step * 4) {
-            this.textCover(centerX + unit * ratio3, textHeight, maskLength, textSizeSmall, 0);
+            this.textCover(centerX + unit * ratio3, textHeight, maskLength, coverHeight, 0);
         }
     }
 
     this.windowFrameDisplay = function (phaseFrameCount, fullFrameCount) {
-        this.updateCanvasSize();
-
         var transRatio = phaseFrameCount / fullFrameCount;
         if (transRatio >= 1) {
             transRatio = 1;
@@ -321,48 +339,54 @@ function Display() {
         strokeWeight(outerFrameStrokeWeight);
         strokeJoin(MITER);
 
+        var lineRatio1 = 0.85 + transRatio * 0.05;
+        var lineRatio2 = 0.95 + transRatio * 0.05;
+
         beginShape();
-        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * 0.9, centerY - heightShift1 - lineFullUnit * 0.9);
-        vertex(centerX - widthShift1 - 1.2 * lineFullUnit, centerY - heightShift1 - lineFullUnit);
-        vertex(centerX - widthShift3 - 1.4 * lineFullUnit, centerY - heightShift2 - 0.7 * lineFullUnit);
-        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * 0.9, centerY - heightShift2 - 0.7 * lineFullUnit * 0.9);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * lineRatio1, centerY - heightShift1 - lineFullUnit * lineRatio1);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * lineRatio2, centerY - heightShift1 - lineFullUnit * lineRatio2);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * lineRatio2, centerY - heightShift2 - 0.7 * lineFullUnit * lineRatio2);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * lineRatio1, centerY - heightShift2 - 0.7 * lineFullUnit * lineRatio1);
         endShape();
 
         beginShape();
-        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * 0.9, centerY - heightShift1 - lineFullUnit * 0.9);
-        vertex(centerX + widthShift1 + 1.2 * lineFullUnit, centerY - heightShift1 - lineFullUnit);
-        vertex(centerX + widthShift3 + 1.4 * lineFullUnit, centerY - heightShift2 - 0.7 * lineFullUnit);
-        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * 0.9, centerY - heightShift2 - 0.7 * lineFullUnit * 0.9);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * lineRatio1, centerY - heightShift1 - lineFullUnit * lineRatio1);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * lineRatio2, centerY - heightShift1 - lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * lineRatio2, centerY - heightShift2 - 0.7 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * lineRatio1, centerY - heightShift2 - 0.7 * lineFullUnit * lineRatio1);
         endShape();
 
         beginShape();
-        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * 0.9, centerY + heightShift1 + lineFullUnit * 0.9);
-        vertex(centerX + widthShift1 + 1.2 * lineFullUnit, centerY + heightShift1 + lineFullUnit);
-        vertex(centerX + widthShift3 + 1.4 * lineFullUnit, centerY + heightShift2 + 0.7 * lineFullUnit);
-        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * 0.9, centerY + heightShift2 + 0.7 * lineFullUnit * 0.9);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * lineRatio1, centerY + heightShift1 + lineFullUnit * lineRatio1);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * lineRatio2, centerY + heightShift1 + lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * lineRatio2, centerY + heightShift2 + 0.7 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * lineRatio1, centerY + heightShift2 + 0.7 * lineFullUnit * lineRatio1);
         endShape();
 
         beginShape();
-        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * 0.9, centerY + heightShift1 + lineFullUnit * 0.9);
-        vertex(centerX - widthShift1 - 1.2 * lineFullUnit, centerY + heightShift1 + lineFullUnit);
-        vertex(centerX - widthShift3 - 1.4 * lineFullUnit, centerY + heightShift2 + 0.7 * lineFullUnit);
-        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * 0.9, centerY + heightShift2 + 0.7 * lineFullUnit * 0.9);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * lineRatio1, centerY + heightShift1 + lineFullUnit * lineRatio1);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * lineRatio2, centerY + heightShift1 + lineFullUnit * lineRatio2);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * lineRatio2, centerY + heightShift2 + 0.7 * lineFullUnit * lineRatio2 * lineRatio2);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * lineRatio1, centerY + heightShift2 + 0.7 * lineFullUnit * lineRatio1);
         endShape();
 
         beginShape();
-        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * 0.9, centerY - heightShift1 - 1.2 * lineFullUnit * 0.9);
-        vertex(centerX - widthShift2 - 0.5 * lineFullUnit, centerY - heightShift1 - 1.2 * lineFullUnit);
-        vertex(centerX + widthShift2 + 0.5 * lineFullUnit, centerY - heightShift1 - 1.2 * lineFullUnit);
-        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * 0.9, centerY - heightShift1 - 1.2 * lineFullUnit * 0.9);
+        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
+        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
         endShape();
 
         noStroke();
         fill(outerFrameColor);
-        rect(centerX, centerY - heightShift1 - 1.2 * lineFullUnit + lineFullUnit * 0.1 / 2, outerFrameStrokeWeight * 2 / 3, lineFullUnit * 0.1);
+        rect(centerX, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2 + lineFullUnit * lineRatio2 * 0.1 / 2, outerFrameStrokeWeight * 2 / 3, lineFullUnit * lineRatio2 * 0.1);
     }
 
     this.osTitleDisplay = function (phaseFrameCount, fullFrameCount, type) {
-        this.updateCanvasSize();
+        // prevent shape change after transaction animation finish
+        if (phaseFrameCount > fullFrameCount) {
+            phaseFrameCount = fullFrameCount;
+        }
         var step = fullFrameCount / 5;
         var ratio;
         var brightRatio;
@@ -515,6 +539,7 @@ function Display() {
     // add this function into draw() funciton
     this.display = function () {
         background(0);
+        this.updateCanvasSize();
         if (this.standByFlag) {
             frameRate(30);
             this.standByDisplay();
@@ -527,22 +552,21 @@ function Display() {
             }
             // hide STANDBY MODE text
             if (this.standByTextStatus == undefined) {
-                var ratio = (frameCount - this.startFrame) / 20;
+                var transactionRatio = (frameCount - this.startFrame) / standByBlinkFrame;
                 this.standByDisplay();
-                this.standByTextDisplay(ratio);
+                this.standByTextDisplay(transactionRatio);
             }
-            // hide patterns on standby mode display
+            // start transaction
             if (this.standByTextStatus == false) {
                 background(0);
                 // set delay time between fade in text and screen transaction 
-                var transactionPhase1Frame = 50;
-                var phase1DelayFrame = 20;
-                var phase2DelayFrame = 40;
+
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
-                var textDisplayRatio = (frameCount - this.startFrame) / transactionPhase1Frame;
-                this.controlTextDisplay(textDisplayRatio, transactionPhase1Frame);
+                // display control texts
+                this.controlTextDisplay(transactionPhase1Frame);
+                // start transaction animation
                 if ((frameCount - this.startFrame) <= phase1DelayFrame) {
                     this.standByDisplay(1);
                 } else if ((frameCount - this.startFrame) > phase1DelayFrame) {
@@ -554,19 +578,13 @@ function Display() {
                     this.standByDisplay(1 - transactionRatio);
                     this.systemStartAnimation(transactionRatio, transactionPhase1Frame);
                 }
-                if ((frameCount - this.startFrame) >= phase2DelayFrame) {
-                    // fade in of display window frames 
-                    this.windowFrameDisplay(frameCount - phase2DelayFrame - this.startFrame, 40);
+                // fade in of display window frames 
+                if ((frameCount - this.startFrame) >= frameDisplayDelay) {
+                    this.windowFrameDisplay(frameCount - frameDisplayDelay - this.startFrame, windowDisplayFrame);
                 }
-                // after transaction animation phase 1 finished
-                var transactionPhase2Frame = 100;
+                // display iios title after transaction animation phase 1 finished
                 if (this.transactionPhase1Flag) {
-                    // display iios info
                     var phase2FrameCount = frameCount - this.phase1FinishFrame;
-                    // prevent shape change after transaction animation finish
-                    if (phase2FrameCount > transactionPhase2Frame) {
-                        phase2FrameCount = transactionPhase2Frame;
-                    }
                     this.osTitleDisplay(phase2FrameCount, transactionPhase2Frame);
                 }
             }
@@ -574,7 +592,6 @@ function Display() {
             frameRate(30);
             this.controlTextDisplay(1);
             this.systemStartAnimation(1);
-            this.standByDisplay(0);
             this.osTitleDisplay(1, 1, 'static');
             this.windowFrameDisplay(1, 1);
         }
