@@ -286,16 +286,17 @@ function Display() {
         } else if (phaseFrameCount > step && phaseFrameCount <= step * 2) {
             brightRatio = 1;
             heightRatio = phaseFrameCount / step - 1;
+            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
         } else if (phaseFrameCount > step * 2 && phaseFrameCount <= step * 3) {
             brightRatio = 1;
             heightRatio = 1;
             titleTransRatio = phaseFrameCount / step - 2;
-            iiosTextCoverRatio = (phaseFrameCount / step - 2) / 2;
+            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
         } else if (phaseFrameCount > step * 3 && phaseFrameCount <= step * 4) {
             brightRatio = 1;
             heightRatio = 1;
             titleTransRatio = 1;
-            iiosTextCoverRatio = (phaseFrameCount / step - 2) / 2;
+            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
         } else if (phaseFrameCount > step * 4 && phaseFrameCount <= step * 5) {
             brightRatio = 1;
             heightRatio = 1;
@@ -341,18 +342,29 @@ function Display() {
         }
 
         if (iiosTextCoverRatio > 0) {
-            fill('rgba(222,222,222,1)');
-            textAlign(CENTER);
-            textSize(baseTextFontSize);
-            textFont("CelestialBeingFont");
-            iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
-            text(iiosString, centerX, centerY - unit / 5);
-            rectMode(CENTER);
-            fill('rgba(0, 0, 0, 1)');
-            this.textCover(centerX, centerY - unit / 5, textWidth(iiosString), baseTextFontSize, iiosTextCoverRatio);
-            fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
-            text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
-
+            if (order != undefined && order == 'reverse') {
+                // while hide title display part in an reverse frame order
+                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
+                textAlign(CENTER);
+                textSize(baseTextFontSize);
+                textFont("CelestialBeingFont");
+                iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
+                text(iiosString, centerX, centerY - unit / 5);
+                text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+            } else {
+                // normally startup frame transaction
+                fill('rgba(222,222,222,1)');
+                textAlign(CENTER);
+                textSize(baseTextFontSize);
+                textFont("CelestialBeingFont");
+                iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
+                text(iiosString, centerX, centerY - unit / 5);
+                rectMode(CENTER);
+                fill('rgba(0, 0, 0, 1)');
+                this.textCover(centerX, centerY - unit / 5, textWidth(iiosString), baseTextFontSize, iiosTextCoverRatio);
+                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
+                text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+            }
         }
 
         // while hide title display part in an reverse frame order
