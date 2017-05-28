@@ -11,6 +11,7 @@ function setup() {
     screen.init();
     background(0);
     frameRate(30);
+    smooth();
 }
 
 function draw() {
@@ -51,6 +52,7 @@ function Display() {
     var ratio4 = 1 + ratio2 * 2;
     var ratio5 = 0.5 + ratio2;
     var ratio6 = 0.75;
+    var ratio7 = ratio1 + 1.5;
     // adjust ratio to adjust ratio of canvas part
     var maxWidth = Math.round(centerX * 2 / 5) * 2;
     var unit = Math.round(maxWidth / (5 + ratio1 * 2));
@@ -212,8 +214,6 @@ function Display() {
         text("OURD", centerX + unit * ratio3 / 2, textHeight);
         text("CNTL", centerX + unit * ratio3, textHeight);
         // text cover
-        rectMode(CENTER);
-        fill('rgba(0, 0, 0, 1)');
         var step = Math.round(transactionPhase1Frame / 5);
         var stepFrame = step + 2;
         if (currentFrame >= 0 && currentFrame < (step + 2)) {
@@ -250,11 +250,118 @@ function Display() {
         }
     }
 
-    this.windowFrameDisplay = function () {
+    this.windowFrameDisplay = function (phaseFrameCount, fullFrameCount) {
+        this.updateCanvasSize();
 
+        var transRatio = phaseFrameCount / fullFrameCount;
+        if (transRatio >= 1) {
+            transRatio = 1;
+            if (this.windowFrameStatus == undefined) {
+                this.windowFrameStatus = true;
+            }
+        }
+
+        var lineUnit = 1.5 * unit;
+        var lineFullUnit = 1.8 * unit;
+        var lineVar = 1.3 * unit;
+
+        var widthShift1 = unit * ratio7;
+        var heightShift1 = unit * ratio5;
+
+        var widthShift2 = unit * 1.5;
+
+        var widthShift6 = widthShift1 + 1.2 * lineUnit;
+        var heightShift8 = heightShift1 + lineUnit;
+
+        var widthShift4 = widthShift1 + 1.2 * lineVar;
+        var heightShift4 = heightShift1 + lineVar;
+
+        var heightShift2 = unit * 0.5;
+        var widthShift3 = maxWidth / 2 - halfLineWidth;
+
+        var widthShift7 = widthShift2 + 0.5 * lineUnit;
+        var heightShift3 = heightShift1 + 1.2 * lineUnit;
+
+        var widthShift5 = widthShift3 + 1.4 * lineVar;
+        var heightShift5 = heightShift2 + 0.7 * lineVar;
+
+        var widthShift8 = widthShift3 + 1.4 * lineUnit;
+        var heightShift7 = heightShift2 + 0.7 * lineUnit;
+
+        var endRatio = 0.9;
+        var outerFrameColor = 'rgba(222,222,222,' + transRatio + ')';
+        var outerFrameStrokeWeight = unit / 15;
+
+        if (phaseFrameCount * 2 > fullFrameCount) {
+            stroke('rgba(100,100,100,' + 0.4 * transRatio + ')');
+            strokeWeight(1.0);
+            line(centerX - widthShift1, centerY - heightShift1, centerX - widthShift6, centerY - heightShift8);
+            line(centerX + widthShift1, centerY - heightShift1, centerX + widthShift6, centerY - heightShift8);
+            line(centerX - widthShift1, centerY + heightShift1, centerX - widthShift6, centerY + heightShift8);
+            line(centerX + widthShift1, centerY + heightShift1, centerX + widthShift6, centerY + heightShift8);
+
+            line(centerX - widthShift2, centerY - heightShift1, centerX - widthShift7, centerY - heightShift3);
+            line(centerX + widthShift2, centerY - heightShift1, centerX + widthShift7, centerY - heightShift3);
+
+            line(centerX - widthShift3, centerY - heightShift2, centerX - widthShift8, centerY - heightShift7);
+            line(centerX + widthShift3, centerY - heightShift2, centerX + widthShift8, centerY - heightShift7);
+            line(centerX - widthShift3, centerY + heightShift2, centerX - widthShift8, centerY + heightShift7);
+            line(centerX + widthShift3, centerY + heightShift2, centerX + widthShift8, centerY + heightShift7);
+
+            // connect lines
+            line(centerX - widthShift4, centerY - heightShift4, centerX - widthShift5, centerY - heightShift5);
+            line(centerX + widthShift4, centerY - heightShift4, centerX + widthShift5, centerY - heightShift5);
+            line(centerX - widthShift4, centerY + heightShift4, centerX - widthShift5, centerY + heightShift5);
+            line(centerX + widthShift4, centerY + heightShift4, centerX + widthShift5, centerY + heightShift5);
+        }
+
+        // outer frame
+        noFill();
+        stroke(outerFrameColor);
+        strokeWeight(outerFrameStrokeWeight);
+        strokeJoin(MITER);
+
+        beginShape();
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * 0.9, centerY - heightShift1 - lineFullUnit * 0.9);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit, centerY - heightShift1 - lineFullUnit);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit, centerY - heightShift2 - 0.7 * lineFullUnit);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * 0.9, centerY - heightShift2 - 0.7 * lineFullUnit * 0.9);
+        endShape();
+
+        beginShape();
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * 0.9, centerY - heightShift1 - lineFullUnit * 0.9);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit, centerY - heightShift1 - lineFullUnit);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit, centerY - heightShift2 - 0.7 * lineFullUnit);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * 0.9, centerY - heightShift2 - 0.7 * lineFullUnit * 0.9);
+        endShape();
+
+        beginShape();
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit * 0.9, centerY + heightShift1 + lineFullUnit * 0.9);
+        vertex(centerX + widthShift1 + 1.2 * lineFullUnit, centerY + heightShift1 + lineFullUnit);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit, centerY + heightShift2 + 0.7 * lineFullUnit);
+        vertex(centerX + widthShift3 + 1.4 * lineFullUnit * 0.9, centerY + heightShift2 + 0.7 * lineFullUnit * 0.9);
+        endShape();
+
+        beginShape();
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit * 0.9, centerY + heightShift1 + lineFullUnit * 0.9);
+        vertex(centerX - widthShift1 - 1.2 * lineFullUnit, centerY + heightShift1 + lineFullUnit);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit, centerY + heightShift2 + 0.7 * lineFullUnit);
+        vertex(centerX - widthShift3 - 1.4 * lineFullUnit * 0.9, centerY + heightShift2 + 0.7 * lineFullUnit * 0.9);
+        endShape();
+
+        beginShape();
+        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * 0.9, centerY - heightShift1 - 1.2 * lineFullUnit * 0.9);
+        vertex(centerX - widthShift2 - 0.5 * lineFullUnit, centerY - heightShift1 - 1.2 * lineFullUnit);
+        vertex(centerX + widthShift2 + 0.5 * lineFullUnit, centerY - heightShift1 - 1.2 * lineFullUnit);
+        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * 0.9, centerY - heightShift1 - 1.2 * lineFullUnit * 0.9);
+        endShape();
+
+        noStroke();
+        fill(outerFrameColor);
+        rect(centerX, centerY - heightShift1 - 1.2 * lineFullUnit + lineFullUnit * 0.1 / 2, outerFrameStrokeWeight * 2 / 3, lineFullUnit * 0.1);
     }
 
-    this.osTitleDisplay = function (phaseFrameCount, fullFrameCount, order) {
+    this.osTitleDisplay = function (phaseFrameCount, fullFrameCount, type) {
         this.updateCanvasSize();
         var step = fullFrameCount / 5;
         var ratio;
@@ -264,10 +371,10 @@ function Display() {
         var height1 = 0.6 * lineWidth;
         var width2 = 1.5 * lineWidth;
         var height2 = 4 * lineWidth;
-        var halfBlockWidth = 0.6 * unit;
+        var halfBlockWidth = 0.7 * unit;
         var halfBlockHeight = 0.3 * unit;
         var baseY = centerY - unit * ratio6;
-        var innerBlockWidth = 0.7 * unit;
+        var innerBlockWidth = 1 * unit;
         // 0.3 is the vertical adjust for screen effect
         var heightShift1 = (height2 - height1) / 2 + 0.25;
         // 0.2 is the horizontal adjust for screen effect
@@ -278,37 +385,51 @@ function Display() {
         var textFontSize1 = baseTextFontSize * 2.5;
         var textFontSize2 = baseTextFontSize * 1.7;
         var iiosTextCoverRatio = 0;
-        var iiosString = "";
         var startUpTransRatio = 0;
+        var smallTextCoverRatio = 0;
+        var iiosString = "";
+        var smallText = "";
 
-        if (phaseFrameCount <= step) {
-            brightRatio = phaseFrameCount / step;
-        } else if (phaseFrameCount > step && phaseFrameCount <= step * 2) {
-            brightRatio = 1;
-            heightRatio = phaseFrameCount / step - 1;
-            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
-        } else if (phaseFrameCount > step * 2 && phaseFrameCount <= step * 3) {
-            brightRatio = 1;
-            heightRatio = 1;
-            titleTransRatio = phaseFrameCount / step - 2;
-            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
-        } else if (phaseFrameCount > step * 3 && phaseFrameCount <= step * 4) {
-            brightRatio = 1;
-            heightRatio = 1;
-            titleTransRatio = 1;
-            iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
-        } else if (phaseFrameCount > step * 4 && phaseFrameCount <= step * 5) {
-            brightRatio = 1;
-            heightRatio = 1;
-            titleTransRatio = 1;
-            iiosTextCoverRatio = 1;
-            startUpTransRatio = phaseFrameCount / step - 4;
-        } else {
+        if (type != undefined && type == 'static') {
             brightRatio = 1;
             heightRatio = 1;
             titleTransRatio = 1;
             iiosTextCoverRatio = 1;
             startUpTransRatio = 1;
+            smallTextCoverRatio = 1;
+        } else {
+            if (phaseFrameCount <= step) {
+                brightRatio = phaseFrameCount / step;
+            } else if (phaseFrameCount > step && phaseFrameCount <= step * 2) {
+                brightRatio = 1;
+                heightRatio = phaseFrameCount / step - 1;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 2 && phaseFrameCount <= step * 3) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = phaseFrameCount / step - 2;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 3 && phaseFrameCount <= step * 4) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                smallTextCoverRatio = phaseFrameCount / step - 3;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 4 && phaseFrameCount <= step * 5) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                startUpTransRatio = phaseFrameCount / step - 4;
+            } else {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                startUpTransRatio = 1;
+            }
         }
 
         noStroke();
@@ -341,39 +462,53 @@ function Display() {
             text("S", centerX + titleWidthShift1 + textFontSize2 / 5, baseY + titleHeightShift1 + textFontSize2 / 4);
         }
 
-        if (iiosTextCoverRatio > 0) {
-            if (order != undefined && order == 'reverse') {
-                // while hide title display part in an reverse frame order
-                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
-                textAlign(CENTER);
-                textSize(baseTextFontSize);
-                textFont("CelestialBeingFont");
-                iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
-                text(iiosString, centerX, centerY - unit / 5);
-                text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+        if (smallTextCoverRatio > 0) {
+            var smallTextFontSize = 1;
+            noStroke();
+            textAlign(CENTER);
+            textSize(smallTextFontSize);
+            textFont("CelestialBeingFont");
+            if (type != undefined && type == 'reverse') {
+                fill('rgba(222,222,222,' + smallTextCoverRatio + ')');
+                // seems to be these words
+                smallText = "GUNDAM DAEMON";
+                text(smallText, centerX, baseY + 0.25 * unit);
             } else {
-                // normally startup frame transaction
                 fill('rgba(222,222,222,1)');
-                textAlign(CENTER);
-                textSize(baseTextFontSize);
-                textFont("CelestialBeingFont");
-                iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
-                text(iiosString, centerX, centerY - unit / 5);
-                rectMode(CENTER);
-                fill('rgba(0, 0, 0, 1)');
-                this.textCover(centerX, centerY - unit / 5, textWidth(iiosString), baseTextFontSize, iiosTextCoverRatio);
-                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
-                text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+                // seems to be these words
+                smallText = "GUNDAM";
+                text(smallText, centerX, baseY + 0.25 * unit);
+                this.textCover(centerX, baseY + 0.25 * unit, textWidth(smallText), unit * 0.2, smallTextCoverRatio);
             }
         }
 
-        // while hide title display part in an reverse frame order
-        if (order != undefined && order == 'reverse') {
+        if (iiosTextCoverRatio > 0) {
+            textAlign(CENTER);
+            textSize(baseTextFontSize);
+            textFont("CelestialBeingFont");
+            iiosString = "INDIVIDUAL  INFORMATION  ATTESTATION  SYSTEM";
+            if (type != undefined && type == 'reverse') {
+                // while hide title display part in an reverse frame order
+                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
+                text(iiosString, centerX, centerY - unit / 5);
+            } else {
+                // normally startup frame transaction
+                fill('rgba(222,222,222,1)');
+                text(iiosString, centerX, centerY - unit / 5);
+                this.textCover(centerX, centerY - unit / 5, textWidth(iiosString), baseTextFontSize, iiosTextCoverRatio);
+                fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
+            }
+            text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+        }
 
+        if (phaseFrameCount == fullFrameCount) {
+            this.startingFlag = false;
         }
     }
 
     this.textCover = function (x, y, maskLength, height, coverRatio) {
+        rectMode(CENTER);
+        fill('rgba(0, 0, 0, 1)');
         rect(x + maskLength * coverRatio / 2, y, maskLength * (1 - coverRatio), height);
     }
 
@@ -399,9 +534,10 @@ function Display() {
             // hide patterns on standby mode display
             if (this.standByTextStatus == false) {
                 background(0);
-                // set delay time between fading text and screen transaction 
+                // set delay time between fade in text and screen transaction 
                 var transactionPhase1Frame = 50;
                 var phase1DelayFrame = 20;
+                var phase2DelayFrame = 40;
                 if (this.startFrame == undefined) {
                     this.startFrame = frameCount;
                 }
@@ -417,8 +553,10 @@ function Display() {
                     }
                     this.standByDisplay(1 - transactionRatio);
                     this.systemStartAnimation(transactionRatio, transactionPhase1Frame);
+                }
+                if ((frameCount - this.startFrame) >= phase2DelayFrame) {
                     // fade in of display window frames 
-                    this.windowFrameDisplay();
+                    this.windowFrameDisplay(frameCount - phase2DelayFrame - this.startFrame, 40);
                 }
                 // after transaction animation phase 1 finished
                 var transactionPhase2Frame = 100;
@@ -437,6 +575,8 @@ function Display() {
             this.controlTextDisplay(1);
             this.systemStartAnimation(1);
             this.standByDisplay(0);
+            this.osTitleDisplay(1, 1, 'static');
+            this.windowFrameDisplay(1, 1);
         }
     }
 }
