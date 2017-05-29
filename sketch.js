@@ -24,7 +24,6 @@ function windowResized() {
 }
 
 function mousePressed() {
-    // alert("mousePressed");
     if (screen.standByFlag == true) {
         screen.setStartFlag();
     }
@@ -65,14 +64,20 @@ function Display() {
     var frameCircle = 35;
     var doubleFrameCircle = frameCircle * 2;
     var startFrame = 0;
+    // delay frame counts
+
+    var startUpTextDisplayFrame = 70;
+    var flightDisplayDelayFrame = 20;
 
     // phase frame counts
     var standByBlinkFrame = 20;
-    var transactionPhase1Frame = 50;
     var phase1DelayFrame = 20;
     var frameDisplayDelay = 40;
     var windowDisplayFrame = 45;
-    var transactionPhase2Frame = 80;
+    var phase1FullFrame = 50;
+    var phase2FullFrame = 70;
+    var phase2ReverseFullFrame = 40;
+    var phase3FullFrame = 40;
 
     this.init = function () {
         this.standByFlag = true;
@@ -205,7 +210,7 @@ function Display() {
         // finish transaction
         if (transactionRatio == 1) {
             // this.startingFlag = false;
-            this.transactionPhase1Flag = true;
+            this.phase1Flag = true;
             if (this.phase1FinishFrame == undefined) {
                 this.phase1FinishFrame = frameCount;
             }
@@ -297,7 +302,7 @@ function Display() {
         var heightShift2 = unit * 0.5;
         var widthShift3 = maxWidth / 2 - halfLineWidth;
 
-        var widthShift7 = widthShift2 + 0.5 * lineUnit;
+        var widthShift7 = widthShift2 + 0.6 * lineUnit;
         var heightShift3 = heightShift1 + 1.2 * lineUnit;
 
         var widthShift5 = widthShift3 + 1.4 * lineVar;
@@ -371,18 +376,24 @@ function Display() {
         endShape();
 
         beginShape();
-        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
-        vertex(centerX - widthShift2 - 0.5 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
-        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
-        vertex(centerX + widthShift2 + 0.5 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
+        vertex(centerX - widthShift2 - 0.6 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
+        vertex(centerX - widthShift2 - 0.6 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift2 + 0.6 * lineFullUnit * lineRatio2, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2);
+        vertex(centerX + widthShift2 + 0.6 * lineFullUnit * lineRatio1, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio1);
         endShape();
 
         noStroke();
         fill(outerFrameColor);
-        rect(centerX, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2 + lineFullUnit * lineRatio2 * 0.1 / 2, outerFrameStrokeWeight * 2 / 3, lineFullUnit * lineRatio2 * 0.1);
+        rect(centerX, centerY - heightShift1 - 1.2 * lineFullUnit * lineRatio2 + lineFullUnit * lineRatio2 * 0.1 / 2, outerFrameStrokeWeight / 3, lineFullUnit * lineRatio2 * 0.1);
     }
 
     this.osTitleDisplay = function (phaseFrameCount, fullFrameCount, type) {
+        if (phaseFrameCount == fullFrameCount + startUpTextDisplayFrame) {
+            this.phase2Flag = true;
+            if (this.phase2FinishFrame == undefined) {
+                this.phase2FinishFrame = frameCount;
+            }
+        }
         // prevent shape change after transaction animation finish
         if (phaseFrameCount > fullFrameCount) {
             phaseFrameCount = fullFrameCount;
@@ -494,12 +505,12 @@ function Display() {
             textFont("CelestialBeingFont");
             if (type != undefined && type == 'reverse') {
                 fill('rgba(222,222,222,' + smallTextCoverRatio + ')');
-                // seems to be these words
-                smallText = "GUNDAM DAEMON";
+                // only able to be identify word GUNDAM
+                smallText = "GUNDAM";
                 text(smallText, centerX, baseY + 0.25 * unit);
             } else {
                 fill('rgba(222,222,222,1)');
-                // seems to be these words
+                // only able to be identify word GUNDAM
                 smallText = "GUNDAM";
                 text(smallText, centerX, baseY + 0.25 * unit);
                 this.textCover(centerX, baseY + 0.25 * unit, textWidth(smallText), unit * 0.2, smallTextCoverRatio);
@@ -524,10 +535,133 @@ function Display() {
             }
             text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
         }
+    }
 
-        if (phaseFrameCount == fullFrameCount) {
-            this.startingFlag = false;
+    this.pitchLadderDisplay = function (transActionRatio) {
+        var lineFullUnit = 1.8 * unit;
+        var halfScaleWidth = unit * 2.4;
+        var halfScaleHeight = unit * ratio5 + 1.09 * lineFullUnit;
+        var step = unit;
+        var scaleMarkWidth = unit * 0.3;
+        var scaleMarkWeight = lineWidth * 0.6;
+        var bevelLength = step * 0.05;
+        var widthShift1 = halfScaleWidth + scaleMarkWidth;
+        noFill();
+        stroke('rgba(222, 222, 222, ' + transActionRatio + ')');
+        strokeWeight(scaleMarkWeight);
+        strokeJoin(MITER);
+        beginShape();
+        vertex(centerX - halfScaleWidth, centerY);
+        vertex(centerX - halfScaleWidth - scaleMarkWidth, centerY);
+        endShape();
+
+        beginShape();
+        vertex(centerX + halfScaleWidth, centerY);
+        vertex(centerX + halfScaleWidth + scaleMarkWidth, centerY);
+        endShape();
+
+        for (var i = 1; i < 3; i++) {
+            beginShape();
+            vertex(centerX - halfScaleWidth, centerY - step * i);
+            vertex(centerX - widthShift1, centerY - step * i);
+            vertex(centerX - widthShift1, centerY - step * i + bevelLength);
+            vertex(centerX - widthShift1 + scaleMarkWeight, centerY - step * i + bevelLength);
+            vertex(centerX - widthShift1 + scaleMarkWeight, centerY - step * i);
+            endShape();
+
+            beginShape();
+            vertex(centerX + halfScaleWidth, centerY - step * i);
+            vertex(centerX + widthShift1, centerY - step * i);
+            vertex(centerX + widthShift1, centerY - step * i + bevelLength);
+            vertex(centerX + widthShift1 - scaleMarkWeight, centerY - step * i + bevelLength);
+            vertex(centerX + widthShift1 - scaleMarkWeight, centerY - step * i);
+            endShape();
+
+            beginShape();
+            vertex(centerX - halfScaleWidth, centerY + step * i);
+            vertex(centerX - widthShift1, centerY + step * i);
+            vertex(centerX - widthShift1, centerY + step * i - bevelLength);
+            vertex(centerX - widthShift1 + scaleMarkWeight, centerY + step * i - bevelLength);
+            vertex(centerX - widthShift1 + scaleMarkWeight, centerY + step * i);
+            endShape();
+
+            beginShape();
+            vertex(centerX + halfScaleWidth, centerY + step * i);
+            vertex(centerX + widthShift1, centerY + step * i);
+            vertex(centerX + widthShift1, centerY + step * i - bevelLength);
+            vertex(centerX + widthShift1 - scaleMarkWeight, centerY + step * i - bevelLength);
+            vertex(centerX + widthShift1 - scaleMarkWeight, centerY + step * i);
+            endShape();
         }
+    }
+
+    this.flightPathMarkerDisplay = function (transActionRatio) {
+        var markerHeight = unit * 0.14;
+        var markerWidth = unit * 0.36;
+        var width1 = unit * 0.06;
+        var verticalStrokeWeight = lineWidth * 1.2;
+        var horizontalStrokeWeight = lineWidth * 1.2;
+        var widthShift1 = markerWidth / 2 - verticalStrokeWeight / 2;
+        var heightShift1 = markerHeight / 2 - horizontalStrokeWeight / 2;
+        noFill();
+        stroke('rgba(222, 222, 222, ' + transActionRatio + ')');
+        strokeWeight(verticalStrokeWeight);
+        strokeJoin(MITER);
+        // left half marker
+        beginShape();
+        vertex(centerX - widthShift1 + width1, centerY - heightShift1);
+        vertex(centerX - widthShift1, centerY - heightShift1);
+        vertex(centerX - widthShift1, centerY + heightShift1);
+        vertex(centerX - widthShift1 + width1, centerY + heightShift1);
+        endShape();
+        // right half marker
+        beginShape();
+        vertex(centerX + widthShift1 - width1, centerY - heightShift1);
+        vertex(centerX + widthShift1, centerY - heightShift1);
+        vertex(centerX + widthShift1, centerY + heightShift1);
+        vertex(centerX + widthShift1 - width1, centerY + heightShift1);
+        endShape();
+    }
+
+    this.headingDisplay = function (transActionRatio) {
+        var lineFullUnit = 1.8 * unit;
+        var height = centerY - unit * ratio5 - 1.09 * lineFullUnit;
+        var lineHeight = lineWidth * 5;
+        var halfScaleWidth = unit * 2.4;
+        var step = halfScaleWidth / 12;
+        var textFontSize = unit / 8;
+        var textHeight = height + textFontSize * 1.2;
+        noStroke();
+        rectMode(CENTER);
+        fill('rgba(222, 222, 222, ' + transActionRatio + ')');
+        rect(centerX, height, lineWidth * 2, lineHeight);
+        for (var i = 0; i < 13; i++) {
+            rect(centerX - i * step, height, lineWidth * 2, lineHeight);
+            rect(centerX + i * step, height, lineWidth * 2, lineHeight);
+        }
+        textSize(textFontSize);
+        textAlign(CENTER);
+        textFont("CelestialBeingFont");
+        text('35', centerX - 10 * step, textHeight);
+        text('36', centerX - 5 * step, textHeight);
+        text('01', centerX, textHeight);
+        text('02', centerX + 5 * step, textHeight);
+        text('03', centerX + 10 * step, textHeight);
+    }
+
+    this.flightDisplay = function (currentFrameCount, fullFrameCount) {
+        var transActionRatio = currentFrameCount / fullFrameCount;
+        if (transActionRatio >= 1) {
+            transActionRatio = 1;
+            if (this.phase4Flag == undefined) {
+                this.phase4Flag = true;
+                this.startingFlag = false;
+            }
+        }
+
+        this.pitchLadderDisplay(transActionRatio);
+        this.flightPathMarkerDisplay(transActionRatio);
+        this.headingDisplay(transActionRatio);
     }
 
     this.textCover = function (x, y, maskLength, height, coverRatio) {
@@ -565,34 +699,49 @@ function Display() {
                     this.startFrame = frameCount;
                 }
                 // display control texts
-                this.controlTextDisplay(transactionPhase1Frame);
+                this.controlTextDisplay(phase1FullFrame);
                 // start transaction animation
                 if ((frameCount - this.startFrame) <= phase1DelayFrame) {
                     this.standByDisplay(1);
                 } else if ((frameCount - this.startFrame) > phase1DelayFrame) {
-                    var transactionRatio = (frameCount - this.startFrame - phase1DelayFrame) / (transactionPhase1Frame - phase1DelayFrame);
+                    var transactionRatio = (frameCount - this.startFrame - phase1DelayFrame) / (phase1FullFrame - phase1DelayFrame);
                     // prevent shape change after transaction animation finish
                     if (transactionRatio >= 1) {
                         transactionRatio = 1;
                     }
                     this.standByDisplay(1 - transactionRatio);
-                    this.systemStartAnimation(transactionRatio, transactionPhase1Frame);
+                    this.systemStartAnimation(transactionRatio, phase1FullFrame);
                 }
                 // fade in of display window frames 
                 if ((frameCount - this.startFrame) >= frameDisplayDelay) {
                     this.windowFrameDisplay(frameCount - frameDisplayDelay - this.startFrame, windowDisplayFrame);
                 }
                 // display iios title after transaction animation phase 1 finished
-                if (this.transactionPhase1Flag) {
+                if (this.phase1Flag && this.phase2Flag != true) {
                     var phase2FrameCount = frameCount - this.phase1FinishFrame;
-                    this.osTitleDisplay(phase2FrameCount, transactionPhase2Frame);
+                    this.osTitleDisplay(phase2FrameCount, phase2FullFrame);
+                }
+                if (this.phase2Flag && frameCount >= this.phase2FinishFrame) {
+                    var phase3FrameCount = frameCount - this.phase2FinishFrame;
+                    if (phase3FrameCount >= phase2ReverseFullFrame) {
+                        phase3FrameCount = phase2ReverseFullFrame;
+                        if (this.phase3Flag == undefined) {
+                            this.phase3Flag = true;
+                            this.phase3FinishFrame = frameCount;
+                        }
+                    }
+                    this.osTitleDisplay((phase2ReverseFullFrame - phase3FrameCount), phase2ReverseFullFrame, 'reverse');
+                }
+                if (this.phase3Flag && (frameCount - this.phase3FinishFrame) >= flightDisplayDelayFrame) {
+                    var phase4FrameCount = frameCount - this.phase3FinishFrame - flightDisplayDelayFrame;
+                    this.flightDisplay(phase4FrameCount, phase3FullFrame);
                 }
             }
         } else {
             frameRate(30);
             this.controlTextDisplay(1);
             this.systemStartAnimation(1);
-            this.osTitleDisplay(1, 1, 'static');
+            this.flightDisplay(1, 1);
             this.windowFrameDisplay(1, 1);
         }
     }
