@@ -1,15 +1,15 @@
-var celestialFont, screen;
+var celestialFont, screen, backgroundImg;
 
 function preload() {
-    celestialFont = loadFont("./fonts/Celestial-Being-Font-Patch.ttf");
+    celestialFont = loadFont("fonts/Celestial-Being-Font-Patch.ttf");
 }
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
     console.log("windowWidth:" + windowWidth + ", windowHeight:" + windowHeight);
-    screen = new Display();
+    screen = new Hud();
     screen.init();
-    background(0);
+    screen.background();
     frameRate(30);
     smooth();
 }
@@ -45,7 +45,7 @@ function delay(milliseconds) {
     }
 }
 
-function Display() {
+function Hud() {
     var centerX = windowWidth / 2;
     var centerY = windowHeight / 2;
     var ratio1 = 0.64;
@@ -75,9 +75,9 @@ function Display() {
     var frameDisplayDelay = 40;
     var windowDisplayFrame = 45;
     var phase1FullFrame = 50;
-    var phase2FullFrame = 70;
-    var phase2ReverseFullFrame = 40;
-    var phase3FullFrame = 40;
+    var phase2FullFrame = 120;
+    var phase2ReverseFullFrame = 50;
+    var phase4FullFrame = 40;
 
     this.init = function () {
         this.standByFlag = true;
@@ -398,7 +398,7 @@ function Display() {
         if (phaseFrameCount > fullFrameCount) {
             phaseFrameCount = fullFrameCount;
         }
-        var step = fullFrameCount / 5;
+        var step = fullFrameCount / 9;
         var ratio;
         var brightRatio;
         var heightRatio;
@@ -422,8 +422,10 @@ function Display() {
         var iiosTextCoverRatio = 0;
         var startUpTransRatio = 0;
         var smallTextCoverRatio = 0;
+        var idConfirmCoverRatio = 0;
         var iiosString = "";
         var smallText = "";
+        var idConfirmString = "";
 
         if (type != undefined && type == 'static') {
             brightRatio = 1;
@@ -432,6 +434,42 @@ function Display() {
             iiosTextCoverRatio = 1;
             startUpTransRatio = 1;
             smallTextCoverRatio = 1;
+        } else if (type != undefined && type == 'reverse') {
+            step = fullFrameCount / 7;
+            if (phaseFrameCount <= step) {
+                brightRatio = phaseFrameCount / step;
+            } else if (phaseFrameCount > step && phaseFrameCount <= step * 2) {
+                brightRatio = 1;
+                heightRatio = phaseFrameCount / step - 1;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 2 && phaseFrameCount <= step * 3) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = phaseFrameCount / step - 2;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 3 && phaseFrameCount <= step * 4) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                smallTextCoverRatio = phaseFrameCount / step - 3;
+                iiosTextCoverRatio = (phaseFrameCount / step - 1) / 3;
+            } else if (phaseFrameCount > step * 4 && phaseFrameCount <= step * 6) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                startUpTransRatio = (phaseFrameCount / step - 4) / 2;
+                idConfirmCoverRatio = (phaseFrameCount / step - 4) / 2;
+            } else {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                idConfirmCoverRatio = 1;
+                startUpTransRatio = 1;
+            }
         } else {
             if (phaseFrameCount <= step) {
                 brightRatio = phaseFrameCount / step;
@@ -457,12 +495,28 @@ function Display() {
                 iiosTextCoverRatio = 1;
                 smallTextCoverRatio = 1;
                 startUpTransRatio = phaseFrameCount / step - 4;
+            } else if (phaseFrameCount > step * 5 && phaseFrameCount <= step * 7) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                startUpTransRatio = 1;
+            } else if (phaseFrameCount > step * 7 && phaseFrameCount <= step * 9) {
+                brightRatio = 1;
+                heightRatio = 1;
+                titleTransRatio = 1;
+                iiosTextCoverRatio = 1;
+                smallTextCoverRatio = 1;
+                startUpTransRatio = 1;
+                idConfirmCoverRatio = (phaseFrameCount / step - 7) / 2;
             } else {
                 brightRatio = 1;
                 heightRatio = 1;
                 titleTransRatio = 1;
                 iiosTextCoverRatio = 1;
                 smallTextCoverRatio = 1;
+                idConfirmCoverRatio = 1;
                 startUpTransRatio = 1;
             }
         }
@@ -534,6 +588,23 @@ function Display() {
                 fill('rgba(222, 222, 222, ' + startUpTransRatio + ')');
             }
             text("START UP", centerX, centerY - unit / 5 + baseTextFontSize);
+        }
+
+        if (idConfirmCoverRatio > 0) {
+            textAlign(CENTER);
+            textSize(baseTextFontSize);
+            textFont("CelestialBeingFont");
+            idConfirmString = "MEISTER CONFIRM";
+            if (type != undefined && type == 'reverse') {
+                // while hide title display part in an reverse frame order
+                fill('rgba(222, 222, 222, ' + idConfirmCoverRatio + ')');
+                text(idConfirmString, centerX, centerY + unit / 2);
+            } else {
+                // normally startup frame transaction
+                fill('rgba(222,222,222,1)');
+                text(idConfirmString, centerX, centerY + unit / 2);
+                this.textCover(centerX, centerY + unit / 2, textWidth(idConfirmString), baseTextFontSize, idConfirmCoverRatio);
+            }
         }
     }
 
@@ -658,7 +729,7 @@ function Display() {
                 this.startingFlag = false;
             }
         }
-
+        this.transparentRatio = transActionRatio;
         this.pitchLadderDisplay(transActionRatio);
         this.flightPathMarkerDisplay(transActionRatio);
         this.headingDisplay(transActionRatio);
@@ -669,10 +740,20 @@ function Display() {
         fill('rgba(0, 0, 0, 1)');
         rect(x + maskLength * coverRatio / 2, y, maskLength * (1 - coverRatio), height);
     }
+    this.background = function () {
+        background(0);
+        // enable the code block below if you need to load a background image
+        // if (this.transparentRatio != undefined) {
+        //     if (this.transparentRatio >= 1) {
+        //         this.transparentRatio = 1;
+        //     }
+        //     background(backgroundImg, this.transparentRatio);
+        // }
+    }
 
     // add this function into draw() funciton
     this.display = function () {
-        background(0);
+        this.background();
         this.updateCanvasSize();
         if (this.standByFlag) {
             frameRate(30);
@@ -692,7 +773,7 @@ function Display() {
             }
             // start transaction
             if (this.standByTextStatus == false) {
-                background(0);
+                this.background();
                 // set delay time between fade in text and screen transaction 
 
                 if (this.startFrame == undefined) {
@@ -734,7 +815,7 @@ function Display() {
                 }
                 if (this.phase3Flag && (frameCount - this.phase3FinishFrame) >= flightDisplayDelayFrame) {
                     var phase4FrameCount = frameCount - this.phase3FinishFrame - flightDisplayDelayFrame;
-                    this.flightDisplay(phase4FrameCount, phase3FullFrame);
+                    this.flightDisplay(phase4FrameCount, phase4FullFrame);
                 }
             }
         } else {
