@@ -12,6 +12,6 @@ The font in seems to be a font created exclusively for the animation and wasn't 
 This animation was designed to adapt to the width of different screen resoutions. Yet some problems still remains, so there will be a minimum recommend resolution width of 800px. 
 
 ### Demo
-www.dreamisty.com
+http://gundam.dreamisty.com
 
 
