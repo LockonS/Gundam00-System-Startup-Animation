@@ -3,7 +3,9 @@ A gundam 00 system startup animation written with [p5.js](https://github.com/pro
 
 Still working on the pop windows. Hope gundam fans would like it.
 
-### Demo
+### Video demo
+
+The first 8 seconds is a demo for system stand by state.
 
 https://github.com/user-attachments/assets/9cca9066-1876-4abc-a38e-fc6fb555aae3
 
