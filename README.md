@@ -5,7 +5,10 @@ Still working on the pop windows. Hope gundam fans would like it.
 
 ### Demo
 
-https://github.com/LockonS/Gundam00-System-Startup-Animation/blob/master/demo/system-startup.mp4
+https://github.com/user-attachments/assets/9cca9066-1876-4abc-a38e-fc6fb555aae3
+
+> Thanks for suggestions from Bodas about adding this preview.
+
 
 ### Font
 
